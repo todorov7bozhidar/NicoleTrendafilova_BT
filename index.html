@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Гласове на Възраждането</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1a1410;
+      font-family: 'Cinzel', 'Times New Roman', serif;
+      min-height: 100vh;
+      color: #2e2116;
+    }
+
+    /* Начална страница */
+    .main-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+      background-image: linear-gradient(rgba(26, 20, 16, 0.45), rgba(26, 20, 16, 0.45)), url('Хилендар.jpg'), url('Хилендар.png');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      position: relative;
+    }
+
+    .game-container {
+      position: relative;
+      z-index: 2;
+      max-width: 1100px;
+      width: 100%;
+      background: rgba(250, 241, 230, 0.93);
+      border: 2px solid #b4946a;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.7);
+      padding: 50px 40px;
+      border-radius: 4px;
+    }
+
+    /* ВОДЕН ЗНАК - Разположен перфектно горе, зад заглавието с отстояния */
+    .game-container::after {
+      content: "";
+      position: absolute;
+      left: 5%;
+      right: 5%;
+      width: 90%;
+      top: 30px; 
+      bottom: 120px; 
+      background-image: url('Хилендар.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: top center; 
+      opacity: 0.22; 
+      z-index: -1; 
+      pointer-events: none;
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      text-align: center;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: #2e2116;
+      margin-bottom: 50px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+      border-bottom: 2px solid #b4946a;
+      padding-bottom: 20px;
+      position: relative;
+      z-index: 2; 
+    }
+
+    /* Списък с теми */
+    .topics-list {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .topic-block {
+      border: 1px solid #d2bfa5;
+      background: #f4e9dc;
+      transition: all 0.3s ease;
+    }
+
+    .topic-header {
+      font-weight: 700;
+      font-size: 1.4rem;
+      text-align: center;
+      color: #faf1e6;
+      background: #3c2b18;
+      padding: 20px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .topic-header:hover {
+      background: #4a3620;
+    }
+
+    /* Контейнер за точките */
+    .points-container {
+      display: none;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 12px;
+      padding: 20px;
+      background: #faf1e6;
+      border-top: 1px solid #b4946a;
+    }
+
+    .topic-block.active .points-container {
+      display: grid;
+    }
+
+    .cell {
+      background: #e6d7bd;
+      border: 1px solid #b4946a;
+      aspect-ratio: 1.3 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #2e2116;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .cell:hover {
+      background: #3c2b18;
+      color: #faf1e6;
+      border-color: #3c2b18;
+    }
+
+    .cell.used {
+      opacity: 0.25;
+      background: #d2c1a5;
+      color: #7a6652;
+      pointer-events: none;
+      text-decoration: line-through;
+    }
+
+    /* Екран за въпрос */
+    .question-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background-color: #faf1e6;
+      background-size: cover;
+      background-position: center;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .question-screen.bg-april { background-image: linear-gradient(rgba(250,241,230,0.82), rgba(250,241,230,0.82)), url('Априлци.jpg'), url('Априлци.png'); }
+    .question-screen.bg-russo { background-image: linear-gradient(rgba(250,241,230,0.82), rgba(250,241,230,0.82)), url('12.jpg'), url('12.png'); }
+    .question-screen.bg-botev { background-image: linear-gradient(rgba(250,241,230,0.82), rgba(250,241,230,0.82)), url('Ботев.jpg'), url('Ботев.png'); }
+    .question-screen.bg-church { background-image: linear-gradient(rgba(250,241,230,0.82), rgba(250,241,230,0.82)), url('Църковни.jpg'), url('Църковни.png'); }
+    .question-screen.bg-nod { background-image: linear-gradient(rgba(250,241,230,0.82), rgba(250,241,230,0.82)), url('Нод.jpg'), url('Нод.png'); }
+
+    .question-content {
+      max-width: 950px;
+      text-align: center;
+    }
+
+    .question-text {
+      font-size: 3.2rem;
+      line-height: 1.4;
+      font-weight: 400;
+      color: #1a1410;
+    }
+
+    /* Бутон Хоум Меню */
+    .home-button {
+      position: absolute;
+      top: 40px;
+      right: 40px;
+      width: 60px;
+      height: 36px;
+      cursor: pointer;
+      border: 1px solid #b4946a;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease;
+    }
+
+    .home-button:hover {
+      transform: scale(1.05);
+    }
+
+    .flag-stripe {
+      flex: 1;
+    }
+    .flag-white { background: #ffffff; }
+    .flag-green { background: #00966e; }
+    .flag-red { background: #d62612; }
+
+    /* Адаптивност */
+    @media (max-width: 1024px) {
+      h1 { font-size: 2.5rem; }
+      .game-container::after { top: 20px; bottom: 80px; width: 92%; left: 4%; }
+      .topic-header { font-size: 1.2rem; }
+      .points-container { grid-template-columns: repeat(4, 1fr); gap: 10px; }
+      .cell { font-size: 1.5rem; }
+      .question-text { font-size: 2.2rem; }
+    }
+
+    @media (max-width: 768px) {
+      .main-screen { padding: 10px; }
+      .game-container { padding: 20px 15px; }
+      .game-container::after { top: 15px; bottom: 60px; }
+      .points-container { grid-template-columns: repeat(2, 1fr); }
+      .home-button { top: 20px; right: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="main-screen" id="mainScreen">
+    <div class="game-container">
+      <h1>ГЛАСОВЕ НА ВЪЗРАЖДАНЕТО</h1>
+      <div class="topics-list" id="topicsList">
+      </div>
+    </div>
+  </div>
+
+  <div class="question-screen" id="questionScreen">
+    <div class="home-button" id="homeBtn" title="Връщане към началната страница">
+      <div class="flag-stripe flag-white"></div>
+      <div class="flag-stripe flag-green"></div>
+      <div class="flag-stripe flag-red"></div>
+    </div>
+    <div class="question-content">
+      <div class="question-text" id="questionText">Примерен въпрос?</div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const gameData = {
+        april: {
+          title: "Априлско въстание",
+          bgClass: "bg-april",
+          questions: [
+            { points: 10, q: "Кое действие бележи началото на Априлското въстание?" },
+            { points: 20, q: "Известно е, че френският журналист Жан Дьо Вестин приема славянското име:" },
+            { points: 30, q: "Според спомените на Никола Обретенов, кои области на България е обхващал V революционен окръг?" },
+            { points: 40, q: "Какво е последващото име на Гаврил Хлътов, приел името си от паспорта на полски емигрант?" },
+            { points: 50, q: "Чии са думите 'Сам съм! Други няма. Аз водих, аз ръководих. Други не търсете.'?" },
+            { points: 70, q: "В кой манастир се укриват четниците на Бачо Киро и поп Харитон, защитавайки се от османската потеря?" },
+            { points: 100, q: "Къде се намира Ненко Терзийски, когато научава важната информация за подготовката на въстанието?" }
+          ]
+        },
+        russo: {
+          title: "Руско-турска война",
+          bgClass: "bg-russo",
+          questions: [
+            { points: 10, q: "Кой мирен договор бележи края на войната и възстановява българската държава?" },
+            { points: 20, q: "С кое споразумение Русия дава съгласието си да не се създава голяма славянска държава на Балканите?" },
+            { points: 30, q: "Кой османски главнокомандващ защитава Плевен?" },
+            { points: 40, q: "В кой град е извършено тържественото предаване на Самарското знаме на българските опълченци?" },
+            { points: 50, q: "Ако от едната страна на Самарското знаме са Св. Кирил и Методий, кой е изобразен от другата?" },
+            { points: 70, q: "Кой е първият български освободен град след преминаването на Дунав?" },
+            { points: 100, q: "Кой подписва Санстефанския мирен договор от руска страна?" }
+          ]
+        },
+        botev: {
+          title: "Христо Ботев",
+          bgClass: "bg-botev",
+          questions: [
+            { points: 10, q: "Как се казва бащата на Христо Ботев?" },
+            { points: 20, q: "Кое е първото отпечатнато Ботево стихотворение?" },
+            { points: 30, q: "Къде Ботев заминава през 1863 г., за да продължи средното си образование?" },
+            { points: 40, q: "Какво/кого защитава пламенно Христо Ботев в Париж през пролетта на 1871 г.?" },
+            { points: 50, q: "Каква длъжност заема легендарният Никола Симов-Курото в Ботевата чета?" },
+            { points: 70, q: "Към кои две деца (освен Венета) отправя трогателни думи Ботев в писмото си от 'Радецки'?" },
+            { points: 100, q: "Как се казва висшият революционер, който преминава Дунав откъм Добруджа по същото време като Ботев?" }
+          ]
+        },
+        church: {
+          title: "Църковни борби",
+          bgClass: "bg-church",
+          questions: [
+            { points: 10, q: "Къде е двукратно заточен от Вселенската патриаршия големият борец Неофит Бозвели?" },
+            { points: 20, q: "Как се казва прочутата българска желязна църква, издигната в Цариград?" },
+            { points: 30, q: "Кой султан издава официалния ферман за учредяване на Българската екзархия през 1870 г.?" },
+            { points: 40, q: "Кой е обявен за владика и предводител на българите по време на Великденската акция през 1860 г.?" },
+            { points: 50, q: "Кои големи епархии се присъединяват към Българската екзархия след успешен плебисцит?" },
+            { points: 70, q: "В кой цариградски квартал е изградена прочутата българска Желязна църква?" },
+            { points: 100, q: "С кой висок държавен пост след Освобождението се прочува големият деец Тодор Бурмов?" }
+          ]
+        },
+        nod: {
+          title: "НОД (Нац.-освободително движение)",
+          bgClass: "bg-nod",
+          questions: [
+            { points: 10, q: "Кое събитие и място водят до съдбоносното залавяне на Апостола Васил Левски през 1872 г.?" },
+            { points: 20, q: "На кой старопланински връх загива в героичен и неравен бой войводата Хаджи Димитър?" },
+            { points: 30, q: "В чия чета Васил Левски започва своя революционен път като знаменосец?" },
+            { points: 40, q: "Каква форма на бъдещо държавно управление изповядва и проповядва Любен Каравелов?" },
+            { points: 50, q: "Кой вестник издава Георги Стойков Раковски по време на престоя си в град Ниш?" },
+            { points: 70, q: "От кой исторически войвода Раковски взаимства първоначално идеята за организиране на голяма чета?" },
+            { points: 100, q: "Кой комитет извън пределите на страната е определят като първообраз на ВРО?" }
+          ]
+        }
+      };
+
+      const topicKeys = ['april', 'russo', 'botev', 'church', 'nod'];
+      let usedQuestions = JSON.parse(localStorage.getItem('vazrazhdane_used')) || {};
+
+      const topicsList = document.getElementById('topicsList');
+      const mainScreen = document.getElementById('mainScreen');
+      const questionScreen = document.getElementById('questionScreen');
+      const questionText = document.getElementById('questionText');
+      const homeBtn = document.getElementById('homeBtn');
+
+      function buildInterface() {
+        topicsList.innerHTML = '';
+
+        topicKeys.forEach(key => {
+          const data = gameData[key];
+
+          const block = document.createElement('div');
+          block.className = 'topic-block';
+
+          const header = document.createElement('div');
+          header.className = 'topic-header';
+          header.textContent = data.title;
+
+          const pointsContainer = document.createElement('div');
+          pointsContainer.className = 'points-container';
+
+          data.questions.forEach((qObj, qIdx) => {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.textContent = qObj.points;
+
+            const questionId = `${key}_${qIdx}`;
+            if (usedQuestions[questionId]) {
+              cell.classList.add('used');
+            }
+
+            cell.addEventListener('click', (e) => {
+              e.stopPropagation(); 
+              showQuestion(key, qIdx, questionId, cell);
+            });
+
+            pointsContainer.appendChild(cell);
+          });
+
+          header.addEventListener('click', () => {
+            const isActive = block.classList.contains('active');
+            document.querySelectorAll('.topic-block').forEach(b => b.classList.remove('active'));
+            
+            if (!isActive) {
+              block.classList.add('active');
+            }
+          });
+
+          block.appendChild(header);
+          block.appendChild(pointsContainer);
+          topicsList.appendChild(block);
+        });
+      }
+
+      function showQuestion(topicKey, qIdx, questionId, cellElement) {
+        const data = gameData[topicKey];
+        const questionObj = data.questions[qIdx];
+
+        usedQuestions[questionId] = true;
+        localStorage.setItem('vazrazhdane_used', JSON.stringify(usedQuestions));
+        cellElement.classList.add('used');
+
+        questionText.textContent = questionObj.q;
+        
+        questionScreen.className = 'question-screen';
+        questionScreen.classList.add(data.bgClass);
+
+        mainScreen.style.display = 'none';
+        questionScreen.style.display = 'flex';
+      }
+
+      homeBtn.addEventListener('click', () => {
+        questionScreen.style.display = 'none';
+        mainScreen.style.display = 'flex';
+      });
+
+      buildInterface();
+    })();
+  </script>
+</body>
+</html>
